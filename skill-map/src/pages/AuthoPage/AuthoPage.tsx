@@ -2,7 +2,7 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
 import './AuthoPage.css'
-import { authorize } from '../../api/api'
+import { authorize, setToken } from '../../api/api'
 import { useContext } from 'react'
 import { Alert } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
@@ -27,7 +27,7 @@ function AuthoPage() {
         setError({isError: true, detail: response?.data.detail});
       }else{
         navigate("/");
-        localStorage.setItem("accessToken", response?.data.access_token);
+        setToken(response?.data.access_token);
       }
     }catch(e: Error | any){
       setError({isError: true, detail: e?.message || "Ошибка сети"});
@@ -79,3 +79,5 @@ function AuthoPage() {
 }
 
 export default AuthoPage
+
+

@@ -25,3 +25,10 @@ export interface INodeDetails{
     name: string
     skills: Array<ISkill>
 }
+
+export interface IRoadmap{ 
+    complited: number
+    lenght: number
+    current_module: string
+    path: Array<INodeDetails>
+}

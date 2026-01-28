@@ -37,8 +37,8 @@ function App() {
               <Route path="/login" element={<AuthoPage />} />
               <Route path="/reg" element={<RegisterPage />} />
               <Route element={<MainLayout/>}>
-                 <Route path="/" element={<MainPage/>} />
-                 <Route path="/roadmap" element={<RoadmapPage/>} />
+                 <Route path="/graph" element={<MainPage/>} />
+                 <Route path="/" element={<RoadmapPage/>} />
               </Route>
           </Routes>
       </BrowserRouter>
