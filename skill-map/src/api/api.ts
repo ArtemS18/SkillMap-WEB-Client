@@ -94,3 +94,9 @@ export async function getCurrentUser(){
         .then((response: AxiosResponse)=>{return response})
         .catch((error: AxiosError)=>{return error.response});
 }
+
+export async function getCurrentUserGraph(){
+    return axios.get("/user/known-skill-graph")
+        .then((response: AxiosResponse)=>{return response})
+        .catch((error: AxiosError)=>{return error.response});
+}

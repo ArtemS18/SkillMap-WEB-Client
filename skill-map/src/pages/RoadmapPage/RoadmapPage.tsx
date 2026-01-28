@@ -1,8 +1,8 @@
 import { Button, Card, Form, InputGroup, Accordion, ListGroup, Spinner, Alert } from "react-bootstrap";
-import { createRoadmap, getRoadmap, compliteModuleInRoadmap } from "../../api/api";
+import { createRoadmap, getRoadmap, compliteModuleInRoadmap, getCurrentUserGraph} from "../../api/api";
 import { useState, useContext, useEffect } from "react";
 import { AppContext } from "../../App";
-import { type IRoadmap } from "../../types";
+import { type IEdge, type INode, type IRoadmap } from "../../types";
 import { Navigate, useNavigate } from "react-router-dom";
 
 function RoadmapPage(){
@@ -46,7 +46,9 @@ function RoadmapPage(){
         if (response?.status == 200){
             
             setActiveRoadmap(response.data);
-        }else if (response?.status == 404){
+        }else if (response?.status == 401){
+                navigate('/login');
+        } else if (response?.status == 404){
             setHasActiveRoadmap(false);
         } else {
             setError({isError: true, detail: "Произошла ошибка"}); 
@@ -64,6 +66,7 @@ function RoadmapPage(){
 
     useEffect(()=>{handelGetUserPath()}, [])
     useEffect(()=>{setError({isError: false, detail: ""})}, [activeRoadmap])
+    const visibleModules = activeRoadmap?.path.slice(activeRoadmap?.complited ?? 0) ?? [];
     return (
         <>
         {isLoading ? (
@@ -97,18 +100,22 @@ function RoadmapPage(){
                                     {error?.detail ? error.detail: "Неизвестная ошибка!"}
                                     </Alert>)
                                     }
+                        
                     </>
                 )
             }
             {
+                
                 hasActiveRoadmap === true && activeRoadmap && (
                     <>
                         <Card.Title style={{margin: "20px", alignItems: "center", justifyContent: "center"}}>
                             <h1>Твой текущий роадмап</h1>
                         </Card.Title>
                         <Accordion activeKey={activeKey} flush={true} className="mb-3 w-50 mx-auto">
-                            {activeRoadmap.path.map(
-                                (step, index) => ( 
+                            {visibleModules.map(
+                                (step, i) => {
+                                const index = i + activeRoadmap.complited;
+                                return ( 
                                 <>
                                     <Accordion.Item eventKey={index.toString()} >
                                         <Accordion.Header>
@@ -152,7 +159,7 @@ function RoadmapPage(){
                                             }
                                         </Accordion.Body>
                                     </Accordion.Item>
-                                </>)
+                                </>)}
                             )}
                            
                         </Accordion>

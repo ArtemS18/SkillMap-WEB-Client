@@ -17,9 +17,12 @@ function NavBar() {
        
         <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto justify-content-between w-100">
-                <Nav.Link as={NavLink} to="/graph">Граф навыков</Nav.Link>
+                <Nav className="me-auto">
+                    <Nav.Link as={NavLink} to="/graph">Мой прогресс</Nav.Link>
+                    <Nav.Link as={NavLink} to="/">Мой роадмап</Nav.Link>
+                </Nav>
                 <Navbar.Text>
-                Signed in as: <a href="#login">Mark Otto</a>
+                <a href="/login">Mark Otto</a>
                 </Navbar.Text>
             </Nav>
         </Navbar.Collapse>
