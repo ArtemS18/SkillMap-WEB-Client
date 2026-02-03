@@ -3,7 +3,7 @@ import Navbar from "react-bootstrap/esm/Navbar";
 import './NavBar.css'
 import { NavLink } from "react-router-dom";
 import { Nav } from "react-bootstrap";
-import { logout } from "../api/api";
+import { logout } from "../../api/api";
 
 function NavBar() {
   return (

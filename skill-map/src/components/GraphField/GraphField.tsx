@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { Card, ListGroup } from 'react-bootstrap';
 import { darkTheme, GraphCanvas } from 'reagraph';
-import type {INodeDetails } from '../../types';
+import type {IModule } from '../../types';
 import "./GraphField.css"
 import { useNavigate } from 'react-router-dom';
 import { getNodeDetails } from '../../api/api';
 
 function GraphField(props: any){
     const {edgesList, nodesList} = props;
-    const [nodeDetails, setNodeDetais] = useState<INodeDetails | undefined>()
-    const navigate = useNavigate()
+    const [nodeDetails, setNodeDetais] = useState<IModule | undefined>()
     
     const onNodeClick = async (node_id: string) =>{
         await fetchNodeDetails(node_id)
@@ -17,8 +16,8 @@ function GraphField(props: any){
     const fetchNodeDetails = async (node_id: string)=>{
         if (nodeDetails?.id == node_id){return}
         const response = await getNodeDetails(node_id);
-        if (response?.status == 200){
-            const node = response.data as INodeDetails
+        if (response.ok){
+            const node = response.data as IModule
             setNodeDetais({
                 id: node.id,
                 name: node.name,
@@ -26,8 +25,6 @@ function GraphField(props: any){
 
             })
             console.log(response.data)
-        } else if (response?.status == 401){
-            navigate('/login');
         }
     }
     return (

@@ -2,7 +2,7 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
 import './AuthoPage.css'
-import { authorize, setToken } from '../../api/api'
+import { authorize, oauthGoogleRedirect } from '../../api/api'
 import { useContext } from 'react'
 import { Alert } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
@@ -15,27 +15,22 @@ function AuthoPage() {
   const onFormSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError({isError: false, detail: undefined});
-    setIsLoading(true);
+
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string
     const password = formData.get('password') as string
-    try{
-      const timeot = setTimeout(()=>{setIsLoading(false); throw new Error("Долгое ожидание")}, 1000*10);
-      const response = await authorize(email, password)
-      clearTimeout(timeot);
-      if (response?.status != 200){
-        setError({isError: true, detail: response?.data.detail});
-      }else{
-        navigate("/");
-      }
-    }catch(e: Error | any){
-      setError({isError: true, detail: e?.message || "Ошибка сети"});
-    }finally{
-      setIsLoading(false);
-    }
-      
-  }
 
+    setIsLoading(true);
+    const response = await authorize(email, password)
+    setIsLoading(false);
+    if (response.ok == false) {
+      setError({ isError: true, detail: response.detail});
+      return;
+    }
+    localStorage.setItem("accessToken", response.data.access_token);
+    localStorage.setItem("refreshToken", response.data.refresh_token);
+    navigate("/");
+  }
   return (
     <div className="form-container">
       <Card className="form-card">
@@ -69,6 +64,21 @@ function AuthoPage() {
             <Link to="/reg">
               Создать новый аккаунт
             </Link>
+            <br/>
+             или
+            <br/>
+            <Button
+                variant="outline-secondary"
+                className="submit-button w-100 mb-3" 
+                disabled={isLoading}
+                style={{alignItems: "center", justifyContent: "center"}}
+                onClick={()=>{window.location.href="http://127.0.0.1:8090/api/auth/google"}}
+            >
+                {!isLoading ? (
+                  <>
+                    <img style={{width: '20px', height: "20px"}}src="/google-icon.svg" alt="SVG Icon" /> <span>Войти через Google</span>
+                  </>) : "Подождите..."}
+            </Button>
           </Form>
 
         </Card.Body>

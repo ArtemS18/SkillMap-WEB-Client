@@ -10,32 +10,29 @@ import {AppContext} from '../../App'
 
 function RegisterPage() {
   const context = useContext(AppContext)!
-  let {error, isLoading, setError, setIsLoading} = context
+  let {error, isLoading, setError, setIsLoading, setUserData} = context
   let navigate = useNavigate()
   const onFormSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError({isError: false, detail: undefined});
-    setIsLoading(true);
+    
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string
     const password = formData.get('password') as string
     const firstname = formData.get('firstname') as string
     const lastname = formData.get('lastname') as string
-    try{
-      const timeot = setTimeout(()=>{setIsLoading(false); throw new Error("Долгое ожидание")}, 1000*10);
-      const response = await register(email, password, firstname, lastname)
-      clearTimeout(timeot);
-      if (response?.status != 201){
-        setError({isError: true, detail: response?.data.detail});
-      }else{
-        navigate("/login");
-      }
-    }catch(e: Error | any){
-      setError({isError: true, detail: e?.message || "Ошибка сети"});
-    }finally{
-      setIsLoading(false);
+
+    setIsLoading(true);
+    const response = await register(email, password, firstname, lastname)
+    setIsLoading(false);
+
+    if (response.ok == false){
+      setError({isError: true, detail: response.detail});
+      return
     }
-      
+
+    localStorage.setItem("verifyEmail", email);
+    navigate("/verify-email");
   }
 
   return (
@@ -65,8 +62,11 @@ function RegisterPage() {
               <Form.Control type="password" name='password' placeholder="Придумайте пароль" />
             </Form.Group>
 
-            <Button variant="success" type="submit" className="submit-button w-100" disabled={isLoading}>
-              {!isLoading ? "Создать аккаунт" : "Подождите..."}
+            <Button variant="success" 
+              type="submit" 
+              className="submit-button w-100" 
+              disabled={isLoading}>
+                {(isLoading == false) ? "Создать аккаунт" : "Подождите..."}
             </Button>
              <Link to="/login">
                 Войти

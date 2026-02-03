@@ -1,5 +1,5 @@
 import axios, { AxiosError, type AxiosResponse} from "axios";
-
+import { type IRoadmap, type IModule, type LoginResponse, type IPath, type IModuleDetails } from "../types";
 
 axios.defaults.baseURL = "http://localhost:8090/api/";
 
@@ -85,22 +85,40 @@ function getAccessToken() {
 export function setToken(token: string){
     localStorage.setItem("accessToken", token);
 }
+
+type ApiResponese<T> = | {ok: true; data: T} | {ok: false; detail: string; status?: number}
+
+
+export async function apiCall<T>(request: ()=>Promise<AxiosResponse<T>>): Promise<ApiResponese<T>>{
+    try{
+        const res = await request()
+        return {
+            ok: true,
+            data: res.data
+        }
+    } catch (err){
+        const e = err as AxiosError<any>;
+        return {
+            ok: false,
+            detail: e.response?.data?.detail ?? "Произошла ошибка",
+            status: e.response?.status
+        }
+
+    }
+    
+}
 export async function authorize(username: string, password: string) {
     const data = new FormData();
     data.append("username", username);
     data.append("password", password);
     data.append("scope", "roadmap.write roadmap.read me");
-    try{
-        const response = await axios.post("auth/login", data)
-        localStorage.setItem("refreshToken", response.data.refresh_token);
-        localStorage.setItem("accessToken", response.data.access_token);
-        return response
-    }catch(e: any){
-        return Promise.reject(e);
-    }
-    
-
+    return apiCall<LoginResponse>(()=>axios.post("auth/login", data))
 }
+
+export async function authorizeOAuth(code: string) {
+    return apiCall<LoginResponse>(()=>axios.post("auth/google/callback", {"code": code}))
+}
+
 
 export async function register(email: string, password: string, firstname: string, lastname: string) {
     const data = new FormData();
@@ -109,57 +127,71 @@ export async function register(email: string, password: string, firstname: strin
     data.append("firstname", firstname);
     data.append("lastname", lastname);
 
-    return axios.post("auth/reg", data)
-        .then((response: AxiosResponse)=>{return response})
-        .catch((error: AxiosError)=>{return error.response});
+    return apiCall(()=>axios.post("auth/reg", data))
+
+}
+
+export async function send_code_in_email(email: string) {
+
+    return apiCall(()=>axios.post("auth/send-verify-code", {"to_email": email}))
+}
+
+export async function verify(email: string, code: string) {
+
+    return apiCall(()=>axios.post("auth/verify-email", {"email": email, "code": code}))
 
 }
 
 export async function getGraph(topic_name: string){
-    return axios.get("/skill-graph", {params: { topic: topic_name}})
-        .then((response: AxiosResponse)=>{return response})
-        .catch((error: AxiosError)=>{return error.response});
+    return apiCall(()=>axios.get("/skill-graph", {params: { topic: topic_name}}))
 }
 
 export async function getNodeDetails(node_id: string){
-    return axios.get(`/skill-graph/${node_id}`)
-        .then((response: AxiosResponse)=>{return response})
-        .catch((error: AxiosError)=>{return error.response});
+    return apiCall<IModule>(()=>axios.get(`/skill-graph/${node_id}`))
 }
 
 export async function createRoadmap(query: string){
-    return axios.post("/my-roadmap/create", {"message": query})
-        .then((response: AxiosResponse)=>{return response})
-        .catch((error: AxiosError)=>{return error.response});
+    return apiCall<IRoadmap>(()=>axios.post("/my-roadmap/create", {"message": query}))
 }
 
 export async function getRoadmap(){
-    return axios.get("/my-roadmap")
-        .then((response: AxiosResponse)=>{return response})
-        .catch((error: AxiosError)=>{
-            return error.response});
+    return apiCall<IRoadmap>(()=>axios.get("/my-roadmap"))
 }
 
 export async function compliteModuleInRoadmap(code: string){
-    return axios.post(`/my-roadmap/${code}/complite`)
-        .then((response: AxiosResponse)=>{return response})
-        .catch((error: AxiosError)=>{return error.response});
+    return apiCall<IRoadmap>(()=>axios.post(`/my-roadmap/${code}/complite`))
 }
 
 export async function getKnowSkills(){
-    return axios.get(`/user/progress`)
-        .then((response: AxiosResponse)=>{return response})
-        .catch((error: AxiosError)=>{return error.response});
+    return apiCall(()=>axios.get(`/user/progress`))
 }
 
 export async function getCurrentUser(){
-    return axios.get("/user/me")
-        .then((response: AxiosResponse)=>{return response})
-        .catch((error: AxiosError)=>{return error.response});
+    return apiCall(()=>axios.get("/user/me"))
 }
 
 export async function getCurrentUserGraph(){
-    return axios.get("/user/known-skill-graph")
-        .then((response: AxiosResponse)=>{return response})
-        .catch((error: AxiosError)=>{return error.response});
+    return apiCall(()=>axios.get("/user/known-skill-graph"))
 }
+
+export async function getUserRecs(){
+    return apiCall<IPath>(()=>axios.get("/user/recommends", {params: {limit: 4}}))
+}
+
+
+export async function createRoadmapByIds(target_ids: Array<string | null>, know_ids: Array<string | null>){
+    return apiCall<IRoadmap>(()=>axios.post("/my-roadmap/create-by-skills", {
+        "target_skills": target_ids, 
+        "known_skills": know_ids
+    }))
+}
+
+
+export async function getModuleDetails(id: string){
+    return apiCall<IModuleDetails>(()=>axios.get(`/skill-graph/${id}/details`))
+}
+
+export async function oauthGoogleRedirect(){
+    return apiCall<IModuleDetails>(()=>axios.get(`/auth/google`))
+}
+
