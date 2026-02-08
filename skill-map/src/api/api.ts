@@ -1,7 +1,7 @@
 import axios, { AxiosError, type AxiosResponse} from "axios";
 import { type IRoadmap, type IModule, type LoginResponse, type IPath, type IModuleDetails } from "../types";
 
-axios.defaults.baseURL = "http://localhost:80/api/";
+axios.defaults.baseURL = "http://skillmap.ddns.net/api/";
 
 axios.interceptors.request.use(
   (config) => {
