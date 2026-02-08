@@ -72,7 +72,7 @@ function AuthoPage() {
                 className="submit-button w-100 mb-3" 
                 disabled={isLoading}
                 style={{alignItems: "center", justifyContent: "center"}}
-                onClick={()=>{window.location.href="http://127.0.0.1:8090/api/auth/google"}}
+                onClick={()=>{window.location.href="http://skillmap.ddns.net/api/auth/google"}}
             >
                 {!isLoading ? (
                   <>
