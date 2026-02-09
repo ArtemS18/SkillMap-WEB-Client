@@ -1,9 +1,8 @@
 import axios, { AxiosError, type AxiosResponse} from "axios";
 import { type IRoadmap, type IModule, type LoginResponse, type IPath, type IModuleDetails } from "../types";
-import 'dotenv/config';
 
-export const API_URL = process.env.API_URL
-axios.defaults.baseURL = API_URL || "http://skillmap.ddns.net/api/";
+const API_URL = import.meta.env.VITE_API_URL || "http://skillmap.ddns.net/api/";
+axios.defaults.baseURL = API_URL;
 
 axios.interceptors.request.use(
   (config) => {
