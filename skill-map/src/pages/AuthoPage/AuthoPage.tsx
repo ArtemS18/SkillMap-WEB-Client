@@ -2,7 +2,7 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
 import './AuthoPage.css'
-import { authorize, oauthGoogleRedirect } from '../../api/api'
+import { authorize, oauthGoogleRedirect, API_URL } from '../../api/api'
 import { useContext } from 'react'
 import { Alert } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
@@ -72,7 +72,7 @@ function AuthoPage() {
                 className="submit-button w-100 mb-3" 
                 disabled={isLoading}
                 style={{alignItems: "center", justifyContent: "center"}}
-                onClick={()=>{window.location.href="http://skillmap.ddns.net/api/auth/google"}}
+                onClick={()=>{window.location.href=(API_URL+"auth/google")}}
             >
                 {!isLoading ? (
                   <>
